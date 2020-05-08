@@ -6,6 +6,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	config2 "github.com/virtualops/breeze-cli/pkg/config"
+	"io/ioutil"
 	"os"
 )
 
@@ -19,7 +20,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-var config = &config2.BreezeConfiguration{}
+var Config = &config2.BreezeConfiguration{}
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
@@ -42,11 +43,10 @@ func loadBreezeConfig(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	var file *os.File
-
+	var content []byte
 	// we use a loop to trigger the os.Open call a second time after running init
 	for {
-		file, err = os.Open(fmt.Sprintf("%s/breeze.yaml", cwd))
+		content, err = ioutil.ReadFile(fmt.Sprintf("%s/breeze.yaml", cwd))
 		if err == nil {
 			break
 		}
@@ -55,22 +55,16 @@ func loadBreezeConfig(cmd *cobra.Command, args []string) {
 			Label:     "No breeze configuration was found in the current directory, would you like to create one now",
 			IsConfirm: true,
 		}
-		_, err := prompt.Run()
+		_, err = prompt.Run()
 		if err == nil {
 			initCmd.Run(cmd, args)
 		} else {
+			fmt.Println("You need a Breeze configuration to run this command")
 			os.Exit(1)
 		}
 	}
 
-	var content []byte
-	_, err = file.Read(content)
-
-	if err != nil {
-		os.Exit(1)
-	}
-
-	err = yaml.Unmarshal(content, config)
+	err = yaml.Unmarshal(content, Config)
 
 	if err != nil {
 		os.Exit(1)
