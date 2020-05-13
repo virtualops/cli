@@ -6,6 +6,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	config2 "github.com/virtualops/breeze-cli/pkg/config"
+	"github.com/virtualops/breeze-cli/pkg/installer"
 	"io/ioutil"
 	"os"
 )
@@ -30,10 +31,22 @@ func Execute() {
 }
 
 func init() {
+	clusterCmd := &cobra.Command{
+		Use:   "cluster",
+		Short: "Cluster management operations",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			// cluster commands are not dependent on being in a Breeze project,
+			// but they do need Helm.
+			installer.InstallOrVerifyHelm()
+		},
+	}
+	clusterCmd.AddCommand(clusterSetupCmd)
+
 	rootCmd.AddCommand(
 		initCmd,
 		deployCmd,
 		devCmd,
+		clusterCmd,
 	)
 }
 
