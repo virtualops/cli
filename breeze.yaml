@@ -5,6 +5,9 @@ project: breeze
 build:
   preset: laravel
 
+deploy:
+  path: /
+
 environments:
   production:
     path: /

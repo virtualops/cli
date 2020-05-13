@@ -33,6 +33,7 @@ func init() {
 	rootCmd.AddCommand(
 		initCmd,
 		deployCmd,
+		devCmd,
 	)
 }
 

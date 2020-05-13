@@ -9,15 +9,16 @@ import (
 
 var initCmd = &cobra.Command{
 	Use: "init",
-	PreRun: func(cmd *cobra.Command, args []string) {
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// empty callback to override the global Config loader
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cwd, err := os.Getwd()
-		breezeFile := fmt.Sprintf("%s/%s", cwd, config2.DefaultFileName)
 		if err != nil {
 			os.Exit(1)
 		}
+
+		breezeFile := fmt.Sprintf("%s/%s", cwd, config2.DefaultFileName)
 
 		_, err = os.Stat(breezeFile)
 

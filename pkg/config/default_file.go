@@ -7,9 +7,11 @@ const DefaultConfigFile = `project: breeze
 build:
   preset: laravel
 
+deploy:
+  path: /
+
 environments:
   production:
-    path: /
     # specify an image if you have a custom build system. If present, the ` + "`build`" + `
     # settings will be ignored, and this image will be used instead.
     # image: yourorg/homepage:latest
