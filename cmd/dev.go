@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
 	"github.com/virtualops/breeze-cli/pkg/config"
 	"github.com/virtualops/breeze-cli/pkg/installer"
@@ -12,7 +11,6 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
-	"time"
 )
 
 var devCmd = &cobra.Command{
@@ -62,7 +60,7 @@ func buildDevFiles() {
   name='` + releaseName + `',
   set=['image=` + dockerImageName + `', 'nginxImage=` + dockerImageName + `-nginx', 'service.path=` + Config.Deploy.Path + `']
 ))
-docker_build('` + dockerImageName + `', '..', dockerfile='Dockerfile')
+docker_build('` + dockerImageName + `', '..', dockerfile='Dockerfile',ignore=['/vendor'])
 docker_build('` + dockerImageName + `-nginx', '../public', dockerfile='nginx.Dockerfile')`)
 	f.Close()
 

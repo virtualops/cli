@@ -30,12 +30,11 @@ func InstallOrVerifyTilt() {
 		s.Start()
 		err = exec.Command("bash", "install.sh").Run()
 		s.Stop()
+		os.Remove(fmt.Sprintf("%s/%s", cwd, "install.sh"))
 		if err != nil {
 			fmt.Println("Failed to install Tilt")
 			os.Exit(1)
 		}
-
-		os.Remove(fmt.Sprintf("%s/%s", cwd, "install.sh"))
 	}
 	fmt.Println("\033[1;32m✅ Tilt is installed\033[0m")
 }
