@@ -1,0 +1,26 @@
+on:
+  push:
+    branches:
+      - master
+    tags-ignore:
+      - "*"
+name: Pre-release
+jobs:
+  tag latest:
+    name: tag latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Delete previous tag
+        run: git tag -d latest || exit 0
+      - name: Tag a new release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: latest
+          release_name: Release ${{ github.ref }}
+          body: Automated draft release of latest master build
+          draft: false
+          prerelease: true
