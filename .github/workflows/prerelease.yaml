@@ -6,7 +6,7 @@ on:
       - "*"
 name: Pre-release
 jobs:
-  tag latest:
+  tag-latest:
     name: tag latest
     runs-on: ubuntu-latest
     steps:
