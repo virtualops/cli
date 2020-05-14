@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Fetch tags
+        run: git fetch --tags
       - name: Delete latest tag
         run: git tag -d latest || exit 0
       - name: Push tag removal
