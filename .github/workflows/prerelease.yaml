@@ -14,8 +14,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Delete previous tag
+      - name: Delete latest tag
         run: git tag -d latest || exit 0
+      - name: Push tag removal
+        run: git push --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Delete previous release
+        run: hub release delete latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Tag a new release
         id: tag
         uses: actions/create-release@v1
