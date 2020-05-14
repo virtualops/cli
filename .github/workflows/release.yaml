@@ -13,7 +13,7 @@ jobs:
         env:
           GOARCH: "386"
           GOOS: linux
-        run: go build ./... -o breeze-linux-386
+        run: go build -o breeze-linux-386 ./...
       - name: Upload binary
         uses: actions/upload-release-asset@v1
         env:
@@ -35,7 +35,7 @@ jobs:
         env:
           GOARCH: "amd64"
           GOOS: linux
-        run: go build ./... -o breeze-linux-amd64
+        run: go build -o breeze-linux-amd64 ./...
       - name: Upload binary
         uses: actions/upload-release-asset@v1
         env:
@@ -57,7 +57,7 @@ jobs:
         env:
           GOARCH: "386"
           GOOS: darwin
-        run: go build ./... -o breeze-darwin-386
+        run: go build -o breeze-darwin-386 ./...
       - name: Upload binary
         uses: actions/upload-release-asset@v1
         env:
@@ -79,7 +79,7 @@ jobs:
         env:
           GOARCH: "amd64"
           GOOS: darwin
-        run: go build ./... -o breeze-darwin-amd64
+        run: go build -o breeze-darwin-amd64 ./...
       - name: Upload binary
         uses: actions/upload-release-asset@v1
         env:
