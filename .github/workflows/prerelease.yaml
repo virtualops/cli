@@ -57,7 +57,7 @@ jobs:
         with:
           upload_url: ${{ needs.release-latest.outputs.upload_url }}
           asset_path: ./breeze-linux-386
-          asset_name: ./breeze-linux-386
+          asset_name: breeze-linux-386
           asset_content_type: application/octet-stream
   release-linux-amd64:
     name: release linux/amd64
@@ -81,7 +81,7 @@ jobs:
         with:
           upload_url: ${{ needs.release-latest.outputs.upload_url }}
           asset_path: ./breeze-linux-amd64
-          asset_name: ./breeze-linux-amd64
+          asset_name: breeze-linux-amd64
           asset_content_type: application/octet-stream
   release-darwin-386:
     name: release darwin/386
@@ -105,7 +105,7 @@ jobs:
         with:
           upload_url: ${{ needs.release-latest.outputs.upload_url }}
           asset_path: ./breeze-darwin-386
-          asset_name: ./breeze-darwin-386
+          asset_name: breeze-darwin-386
           asset_content_type: application/octet-stream
   release-darwin-amd64:
     name: release darwin/amd64
@@ -129,5 +129,5 @@ jobs:
         with:
           upload_url: ${{ needs.release-latest.outputs.upload_url }}
           asset_path: ./breeze-darwin-amd64
-          asset_name: ./breeze-darwin-amd64
+          asset_name: breeze-darwin-amd64
           asset_content_type: application/octet-stream
