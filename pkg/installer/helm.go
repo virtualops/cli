@@ -1,12 +1,21 @@
 package installer
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/briandowns/spinner"
 	"os"
 	"os/exec"
 	"time"
 )
+
+type repositoryElement struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+const stableChartUrl = "https://kubernetes-charts.storage.googleapis.com"
 
 func InstallOrVerifyHelm() {
 	cwd, err := os.Getwd()
@@ -56,4 +65,34 @@ func InstallOrVerifyHelm() {
 		}
 	}
 	fmt.Println("\033[1;32m✅ Helm is installed\033[0m")
+	ensureStableRepoExists()
+}
+
+func ensureStableRepoExists() {
+	var buf bytes.Buffer
+	cmd := exec.Command("helm", "repo", "list", "-o", "json")
+	cmd.Stdout = &buf
+	repos := make([]*repositoryElement, 0)
+
+	err := cmd.Run()
+
+	if err == nil {
+		if err := json.Unmarshal(buf.Bytes(), &repos); err != nil {
+			fmt.Println("Failed to parse Helm repo list output")
+			os.Exit(1)
+		}
+	}
+
+	for _, repo := range repos {
+		if repo.Name == "stable" {
+			goto SUCCESS
+		}
+	}
+
+	if err := exec.Command("helm", "repo", "add", "stable", stableChartUrl).Run(); err != nil {
+		fmt.Println("\033[1;31m✘ Failed to add Helm's stable chart repository\033[0m")
+	}
+
+SUCCESS:
+	fmt.Println("\033[1;32m✅ Helm's stable charts repository is configured\033[0m")
 }
