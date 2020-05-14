@@ -6,15 +6,18 @@ on:
       - "*"
 name: Pre-release
 jobs:
-  tag-latest:
+  release-latest:
     name: tag latest
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.tag.outputs.upload_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Delete previous tag
         run: git tag -d latest || exit 0
       - name: Tag a new release
+        id: tag
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -24,3 +27,95 @@ jobs:
           body: Automated draft release of latest master build
           draft: false
           prerelease: true
+  release-linux-386:
+    name: release linux/386
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Pull dependencies
+        run: go get ./...
+      - name: Build linux/386
+        env:
+          GOARCH: "386"
+          GOOS: linux
+        run: go build ./... -o breeze-linux-386
+      - name: Upload binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          - upload_url: ${{ needs.release-latest.outputs.upload_url }}
+            asset_path: ./breeze-linux-386
+            asset_name: ./breeze-linux-386
+            asset_content_type: application/octet-stream
+        needs: release-latest
+  release-linux-amd64:
+    name: release linux/amd64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Pull dependencies
+        run: go get ./...
+      - name: Build linux/amd64
+        env:
+          GOARCH: "amd64"
+          GOOS: linux
+        run: go build ./... -o breeze-linux-amd64
+      - name: Upload binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          - upload_url: ${{ needs.release-latest.outputs.upload_url }}
+            asset_path: ./breeze-linux-amd64
+            asset_name: ./breeze-linux-amd64
+            asset_content_type: application/octet-stream
+        needs: release-latest
+  release-darwin-386:
+    name: release darwin/386
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Pull dependencies
+        run: go get ./...
+      - name: Build darwin/386
+        env:
+          GOARCH: "386"
+          GOOS: darwin
+        run: go build ./... -o breeze-darwin-386
+      - name: Upload binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          - upload_url: ${{ needs.release-latest.outputs.upload_url }}
+            asset_path: ./breeze-darwin-386
+            asset_name: ./breeze-darwin-386
+            asset_content_type: application/octet-stream
+        needs: release-latest
+  release-darwin-amd64:
+    name: release darwin/386
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Pull dependencies
+        run: go get ./...
+      - name: Build darwin/amd64
+        env:
+          GOARCH: "amd64"
+          GOOS: darwin
+        run: go build ./... -o breeze-darwin-amd64
+      - name: Upload binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          - upload_url: ${{ needs.release-latest.outputs.upload_url }}
+            asset_path: ./breeze-darwin-amd64
+            asset_name: ./breeze-darwin-amd64
+            asset_content_type: application/octet-stream
+        needs: release-latest
