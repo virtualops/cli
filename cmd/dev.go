@@ -26,11 +26,28 @@ var devCmd = &cobra.Command{
 }
 
 func buildDevFiles() {
+	os.Mkdir(".breezedev", 0777)
+
+	switch Config.Build.GetPreset() {
+	case "laravel":
+		configuration, err := Config.Build.ToLaravel()
+
+		if err != nil {
+			panic(err)
+		}
+
+		buildLaravelFiles(configuration)
+	}
+
+	fmt.Println("Generated dev files")
+}
+
+func buildLaravelFiles(configuration *config.LaravelBuildConfiguration) {
 	cwd, _ := os.Getwd()
 	dir := filepath.Base(cwd)
 	releaseName := fmt.Sprintf("%s-%s", Config.Project, dir)
 	dockerImageName := fmt.Sprintf("%s/%s", Config.Project, dir)
-	os.Mkdir(".breezedev", 0777)
+
 	f, err := os.Create(".breezedev/Dockerfile")
 
 	if err != nil {
@@ -58,13 +75,21 @@ func buildDevFiles() {
 	f.WriteString(`k8s_yaml(helm(
   'kubernetes',
   name='` + releaseName + `',
-  set=['image=` + dockerImageName + `', 'nginxImage=` + dockerImageName + `-nginx', 'service.path=` + Config.Deploy.Path + `']
+  set=['image=` + dockerImageName + `', 'nginxImage=`)
+
+	if configuration.Api {
+		f.WriteString("nginx")
+	} else {
+		f.WriteString(dockerImageName + "-nginx")
+	}
+	f.WriteString(`', 'ingress.path=` + Config.Deploy.Path + `']
 ))
 docker_build('` + dockerImageName + `', '..', dockerfile='Dockerfile',ignore=['/vendor'])
-docker_build('` + dockerImageName + `-nginx', '../public', dockerfile='nginx.Dockerfile')`)
+`)
+	if !configuration.Api {
+		f.WriteString(`docker_build('` + dockerImageName + `-nginx', '../public', dockerfile='nginx.Dockerfile')`)
+	}
 	f.Close()
-
-	fmt.Println("Generated dev files")
 }
 
 func buildK8sFiles() {
@@ -127,12 +152,12 @@ func buildK8sFiles() {
 }
 
 func RunTilt() {
-	cmd := exec.Command("tilt", "up", "-f", ".breezedev/Tiltfile")
+	cmd := exec.Command("tilt", "up", "-f", ".breezedev/Tiltfile", "--port", "0")
 	cmd.Stdout = io.MultiWriter(os.Stdout)
 	err := cmd.Run()
 
 	if err != nil {
-		fmt.Println("Tilt failed")
+		fmt.Println("Tilt failed", err.Error())
 	}
 }
 

@@ -152,7 +152,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: {{ .Values.service.path }}
+          - path: {{ .Values.ingress.path }}
             backend:
               serviceName: {{ .Release.Name }}
               servicePort: http`
