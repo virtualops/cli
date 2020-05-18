@@ -20,10 +20,11 @@ import (
 var settings *cli.EnvSettings
 var force bool
 var mysql bool
+var dbPort int
 var helmConfig *action.Configuration
 
 const breezeIngressReleaseName = "breeze-ingress"
-const breezeMariaDBReleaseName = "breeze-sql"
+const breezeMySQLReleaseName = "breeze-sql"
 
 var clusterSetupCmd = &cobra.Command{
 	Use:   "setup",
@@ -48,7 +49,8 @@ var clusterSetupCmd = &cobra.Command{
 
 func init() {
 	clusterSetupCmd.Flags().BoolVarP(&force, "force", "f", false, "Force creation of a Breeze ingress, even if another ingress is detected")
-	clusterSetupCmd.Flags().BoolVarP(&mysql, "mysql", "", true, "Run a mariadb install in the cluster")
+	clusterSetupCmd.Flags().BoolVarP(&mysql, "mysql", "", true, "Run a mysql installation in the cluster")
+	clusterSetupCmd.Flags().IntVarP(&dbPort, "db-port", "", 3306, "Specifies the local port to bind the database to")
 }
 
 func installIngress() {
@@ -139,7 +141,7 @@ func installSQLDatabase() {
 	installer.EnsureRepoExists("bitnami", installer.BitnamiChartUrl)
 
 	statusCommand := action.NewStatus(helmConfig)
-	status, err := statusCommand.Run(breezeMariaDBReleaseName)
+	status, err := statusCommand.Run(breezeMySQLReleaseName)
 	// if there's a non-404 error, something went wrong and we'll exit out
 	if err != nil && err != driver.ErrReleaseNotFound {
 		fmt.Println("Failed to retrieve Helm release", err.Error())
@@ -154,13 +156,13 @@ func installSQLDatabase() {
 
 	// 3. install nginx-ingress with helm, release = breeze-sql
 	s := spinner.New(spinner.CharSets[14], 125*time.Millisecond)
-	s.Suffix = " Installing MariaDB"
+	s.Suffix = " Installing MySQL"
 	s.Start()
 	installCmd := action.NewInstall(helmConfig)
-	installCmd.ReleaseName = breezeMariaDBReleaseName
+	installCmd.ReleaseName = breezeMySQLReleaseName
 	installCmd.Namespace = settings.Namespace()
 	installCmd.Wait = true
-	cp, err := installCmd.LocateChart("bitnami/mariadb", settings)
+	cp, err := installCmd.LocateChart("stable/mysql", settings)
 	if err != nil {
 		fmt.Println("Failed to locate DB chart")
 		os.Exit(1)
@@ -170,14 +172,29 @@ func installSQLDatabase() {
 		fmt.Println("Failed to load chart")
 		os.Exit(1)
 	}
+
+	serviceValues := map[string]interface{}{
+		"type": "ClusterIP",
+	}
+
+	// if the user specifies `--db-port=0`, we leave the service as ClusterIP.
+	// Otherwise, we will create a LoadBalancer with the port = dbPort. We
+	// need to use a LoadBalancer over NodePort to use 127.0.0.1:3306.
+	if dbPort != 0 {
+		serviceValues["type"] = "LoadBalancer"
+		serviceValues["port"] = dbPort
+		serviceValues["loadBalancerIP"] = "localhost"
+	}
+
 	_, err = installCmd.Run(chartRequested, map[string]interface{}{
-		"rootUser.password": "root",
-		"db": map[string]interface{}{
-			"name":     "breeze", // we'll create a default DB for convenience
-			"user":     "breeze",
-			"password": "breeze",
+		"mysqlRootPassword": "root",
+		"service":           serviceValues,
+		"mysqlDatabase":     "breeze", // we'll create a default DB for convenience
+		"mysqlUser":         "breeze",
+		"mysqlPassword":     "breeze",
+		"replication": map[string]interface{}{
+			"enabled": false, // we don't need replication for our local env
 		},
-		"replication.enabled": false, // we don't need replication for our local env
 	})
 
 	if err != nil {
@@ -188,4 +205,9 @@ func installSQLDatabase() {
 	s.Stop()
 
 	fmt.Println("\033[1;32m✅ Breeze DB installed\033[0m")
+	if dbPort != 0 {
+		fmt.Printf("You can reach your database on 127.0.0.1:%d\n", dbPort)
+	} else {
+		fmt.Println("Database was launched in cluster-only mode, and is only accessible by other applications in the cluster")
+	}
 }
