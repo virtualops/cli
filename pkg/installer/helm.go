@@ -15,7 +15,10 @@ type repositoryElement struct {
 	URL  string `json:"url"`
 }
 
-const stableChartUrl = "https://kubernetes-charts.storage.googleapis.com"
+const (
+	BitnamiChartUrl = "https://charts.bitnami.com/bitnami"
+	StableChartUrl  = "https://kubernetes-charts.storage.googleapis.com"
+)
 
 func InstallOrVerifyHelm() {
 	cwd, err := os.Getwd()
@@ -65,10 +68,10 @@ func InstallOrVerifyHelm() {
 		}
 	}
 	fmt.Println("\033[1;32m✅ Helm is installed\033[0m")
-	ensureStableRepoExists()
+	EnsureRepoExists("stable", StableChartUrl)
 }
 
-func ensureStableRepoExists() {
+func EnsureRepoExists(name string, url string) {
 	var buf bytes.Buffer
 	cmd := exec.Command("helm", "repo", "list", "-o", "json")
 	cmd.Stdout = &buf
@@ -84,15 +87,15 @@ func ensureStableRepoExists() {
 	}
 
 	for _, repo := range repos {
-		if repo.Name == "stable" {
+		if repo.Name == name {
 			goto SUCCESS
 		}
 	}
 
-	if err := exec.Command("helm", "repo", "add", "stable", stableChartUrl).Run(); err != nil {
-		fmt.Println("\033[1;31m✘ Failed to add Helm's stable chart repository\033[0m")
+	if err := exec.Command("helm", "repo", "add", name, url).Run(); err != nil {
+		fmt.Printf("\033[1;31m✘ Failed to add the %s chart repository\033[0m\n", name)
 	}
 
 SUCCESS:
-	fmt.Println("\033[1;32m✅ Helm's stable charts repository is configured\033[0m")
+	fmt.Printf("\033[1;32m✅ The %s chart repository is configured\033[0m\n", name)
 }
