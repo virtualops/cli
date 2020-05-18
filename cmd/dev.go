@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/virtualops/breeze-cli/pkg/config"
+	"github.com/virtualops/breeze-cli/pkg/docker"
 	"github.com/virtualops/breeze-cli/pkg/installer"
 	"io"
 	"os"
 	"os/exec"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 )
 
@@ -43,17 +43,24 @@ func buildDevFiles() {
 }
 
 func buildLaravelFiles(configuration *config.LaravelBuildConfiguration) {
-	cwd, _ := os.Getwd()
-	dir := filepath.Base(cwd)
-	releaseName := fmt.Sprintf("%s-%s", Config.Project, dir)
-	dockerImageName := fmt.Sprintf("%s/%s", Config.Project, dir)
+	releaseName := Config.ReleaseName()
+	dockerImageName := Config.ImageName()
 
 	f, err := os.Create(".breezedev/Dockerfile")
 
 	if err != nil {
 		fmt.Println("failed to create file", err)
 	}
-	f.WriteString(config.Dockerfile)
+	dockerfile := &docker.Dockerfile{}
+	dockerfile.Build(
+		docker.PHP("7.4-fpm-alpine"),
+		docker.Workdir("/var/www/html"),
+		docker.Composer(),
+		docker.Copy(".", "/var/www/html", docker.Chown("www-data", "www-data")),
+		docker.ComposerAutoload,
+		docker.Preload(),
+	)
+	f.WriteString(dockerfile.String())
 	f.Close()
 	f, err = os.Create(".breezedev/nginx.Dockerfile")
 

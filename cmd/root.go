@@ -47,6 +47,8 @@ func init() {
 		deployCmd,
 		devCmd,
 		clusterCmd,
+		runCmd,
+		shellCmd,
 	)
 }
 

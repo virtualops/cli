@@ -1,6 +1,11 @@
 package config
 
-import "github.com/mitchellh/mapstructure"
+import (
+	"fmt"
+	"github.com/mitchellh/mapstructure"
+	"os"
+	"path/filepath"
+)
 
 var DefaultFileName = "breeze.yaml"
 
@@ -39,4 +44,16 @@ type BreezeConfiguration struct {
 	Build        BuildConfiguration
 	Deploy       *DeployConfiguration
 	Environments map[string]*EnvironmentConfiguration
+}
+
+func (c *BreezeConfiguration) ReleaseName() string {
+	cwd, _ := os.Getwd()
+	dir := filepath.Base(cwd)
+	return fmt.Sprintf("%s-%s", c.Project, dir)
+}
+
+func (c *BreezeConfiguration) ImageName() string {
+	cwd, _ := os.Getwd()
+	dir := filepath.Base(cwd)
+	return fmt.Sprintf("%s/%s", c.Project, dir)
 }
