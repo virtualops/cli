@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
-	"github.com/virtualops/breeze-cli/pkg/attach"
 	"github.com/virtualops/breeze-cli/pkg/docker"
 	"github.com/virtualops/breeze-cli/pkg/kubernetes"
 	"helm.sh/helm/v3/pkg/cli"
@@ -12,6 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/kubectl/pkg/cmd/attach"
 	"strings"
 
 	//"k8s.io/kubectl/pkg/cmd/attach"
@@ -161,7 +161,7 @@ var runCmd = &cobra.Command{
 
 		// otherwise, we will try to attach to the container, assuming it's either an
 		// interactive, or long-running process.
-		factory := util.NewFactory(cli.New().RESTClientGetter())
+		factory := util.NewFactory(util.NewMatchVersionFlags(cli.New().RESTClientGetter()))
 		attachCmd := attach.NewCmdAttach(factory, genericclioptions.IOStreams{
 			In:     os.Stdin,
 			Out:    os.Stdout,
