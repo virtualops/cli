@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -89,7 +90,14 @@ func buildLaravelFiles(configuration *config.LaravelBuildConfiguration) {
 	} else {
 		f.WriteString(dockerImageName + "-nginx")
 	}
-	f.WriteString(`', 'ingress.path=` + Config.Deploy.Path + `']
+
+	paths := Config.Deploy.Paths
+
+	if len(paths) == 0 {
+		paths = append(paths, Config.Deploy.Path)
+	}
+
+	f.WriteString(`', 'ingress.paths={` + strings.Join(paths, ",") + `}']
 ))
 docker_build('` + dockerImageName + `', '..', dockerfile='Dockerfile',ignore=['/vendor'])
 `)

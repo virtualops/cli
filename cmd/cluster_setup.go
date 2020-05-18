@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
-	"github.com/virtualops/breeze-cli/pkg/installer"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
@@ -137,9 +136,6 @@ func installIngress() {
 }
 
 func installSQLDatabase() {
-	// for this, we need the Bitnami chart
-	installer.EnsureRepoExists("bitnami", installer.BitnamiChartUrl)
-
 	statusCommand := action.NewStatus(helmConfig)
 	status, err := statusCommand.Run(breezeMySQLReleaseName)
 	// if there's a non-404 error, something went wrong and we'll exit out

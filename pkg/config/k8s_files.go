@@ -152,10 +152,12 @@ spec:
   rules:
     - http:
         paths:
-          - path: {{ .Values.ingress.path }}
+          {{- range .Values.ingress.paths }}
+          - path: {{ . }}
             backend:
-              serviceName: {{ .Release.Name }}
-              servicePort: http`
+              serviceName: {{ $.Release.Name }}
+              servicePort: http
+          {{- end }}`
 
 const Chart = `apiVersion: v2
 name: laravel

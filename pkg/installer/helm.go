@@ -16,8 +16,7 @@ type repositoryElement struct {
 }
 
 const (
-	BitnamiChartUrl = "https://charts.bitnami.com/bitnami"
-	StableChartUrl  = "https://kubernetes-charts.storage.googleapis.com"
+	StableChartUrl = "https://kubernetes-charts.storage.googleapis.com"
 )
 
 func InstallOrVerifyHelm() {

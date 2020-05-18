@@ -36,7 +36,8 @@ type EnvironmentConfiguration struct {
 }
 
 type DeployConfiguration struct {
-	Path string
+	Path  string
+	Paths []string
 }
 
 type BreezeConfiguration struct {
