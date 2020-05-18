@@ -47,23 +47,30 @@ func buildLaravelFiles(configuration *config.LaravelBuildConfiguration) {
 	releaseName := Config.ReleaseName()
 	dockerImageName := Config.ImageName()
 
-	f, err := os.Create(".breezedev/Dockerfile")
+	dockerfilePath := "Dockerfile"
 
-	if err != nil {
-		fmt.Println("failed to create file", err)
+	if f, err := os.Open(dockerfilePath); os.IsNotExist(err) {
+		dockerfilePath = ".breezedev/Dockerfile"
+		f, err := os.Create(dockerfilePath)
+
+		if err != nil {
+			fmt.Println("failed to create file", err)
+		}
+		dockerfile := &docker.Dockerfile{}
+		dockerfile.Build(
+			docker.PHP("7.4-fpm-alpine"),
+			docker.Workdir("/var/www/html"),
+			docker.Composer(),
+			docker.Copy(".", "/var/www/html", docker.Chown("www-data", "www-data")),
+			docker.ComposerAutoload,
+			docker.Preload(),
+		)
+		f.WriteString(dockerfile.String())
+		f.Close()
+	} else {
+		f.Close()
 	}
-	dockerfile := &docker.Dockerfile{}
-	dockerfile.Build(
-		docker.PHP("7.4-fpm-alpine"),
-		docker.Workdir("/var/www/html"),
-		docker.Composer(),
-		docker.Copy(".", "/var/www/html", docker.Chown("www-data", "www-data")),
-		docker.ComposerAutoload,
-		docker.Preload(),
-	)
-	f.WriteString(dockerfile.String())
-	f.Close()
-	f, err = os.Create(".breezedev/nginx.Dockerfile")
+	f, err := os.Create(".breezedev/nginx.Dockerfile")
 
 	if err != nil {
 		fmt.Println("failed to create file", err)
@@ -99,7 +106,7 @@ func buildLaravelFiles(configuration *config.LaravelBuildConfiguration) {
 
 	f.WriteString(`', 'ingress.paths={` + strings.Join(paths, ",") + `}']
 ))
-docker_build('` + dockerImageName + `', '..', dockerfile='Dockerfile',ignore=['/vendor'])
+docker_build('` + dockerImageName + `', '..', dockerfile='../` + dockerfilePath + `',ignore=['/vendor'])
 `)
 	if !configuration.Api {
 		f.WriteString(`docker_build('` + dockerImageName + `-nginx', '../public', dockerfile='nginx.Dockerfile')`)
