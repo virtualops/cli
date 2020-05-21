@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	config2 "github.com/virtualops/breeze-cli/pkg/config"
+	config2 "github.com/virtualops/cli/pkg/config"
 	"os"
 )
 

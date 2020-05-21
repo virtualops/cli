@@ -1,4 +1,4 @@
-module github.com/virtualops/breeze-cli
+module github.com/virtualops/cli
 
 go 1.14
 

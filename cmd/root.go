@@ -5,8 +5,8 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
-	config2 "github.com/virtualops/breeze-cli/pkg/config"
-	"github.com/virtualops/breeze-cli/pkg/installer"
+	config2 "github.com/virtualops/cli/pkg/config"
+	"github.com/virtualops/cli/pkg/installer"
 	"io/ioutil"
 	"os"
 )

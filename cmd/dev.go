@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/virtualops/breeze-cli/pkg/config"
-	"github.com/virtualops/breeze-cli/pkg/docker"
-	"github.com/virtualops/breeze-cli/pkg/installer"
+	"github.com/virtualops/cli/pkg/config"
+	"github.com/virtualops/cli/pkg/docker"
+	"github.com/virtualops/cli/pkg/installer"
 	"io"
 	"os"
 	"os/exec"

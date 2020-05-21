@@ -1,0 +1,6 @@
+{
+  "watch": ["*"],
+  "ext": "go graphql",
+  "ignore": ["*gen*.go"],
+  "exec": "go build -o breeze -ldflags=\"-X main.OauthSecret=$BREEZE_OAUTH_SECRET\""
+}
