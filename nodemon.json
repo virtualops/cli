@@ -2,5 +2,5 @@
   "watch": ["*"],
   "ext": "go graphql",
   "ignore": ["*gen*.go"],
-  "exec": "go build -o breeze -ldflags=\"-X pkg/api.oauthSecret=$BREEZE_OAUTH_SECRET -X pkg/api.breezeURL=$BREEZE_URL\""
+  "exec": "go build -o breeze -ldflags=\"-X github.com/virtualops/cli/pkg/api.oauthSecret=$BREEZE_OAUTH_SECRET -X github.com/virtualops/cli/pkg/api.breezeURL=$BREEZE_URL -X github.com/virtualops/cli/pkg/api.oauthClientID=$OAUTH_CLIENT_ID\""
 }
