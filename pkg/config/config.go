@@ -27,7 +27,7 @@ func (c BuildConfiguration) ToLaravel() (*LaravelBuildConfiguration, error) {
 }
 
 type LaravelBuildConfiguration struct {
-	Api bool `yaml:"api"`
+	Api bool `json:"api"`
 }
 
 type EnvironmentConfiguration struct {

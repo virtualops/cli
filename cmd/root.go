@@ -49,6 +49,7 @@ func init() {
 		clusterCmd,
 		runCmd,
 		shellCmd,
+		loginCmd,
 	)
 }
 
