@@ -106,7 +106,7 @@ func buildLaravelFiles(configuration *config.LaravelBuildConfiguration) {
 
 	f.WriteString(`', 'ingress.paths={` + strings.Join(paths, ",") + `}']
 ))
-docker_build('` + dockerImageName + `', '..', dockerfile='../` + dockerfilePath + `',ignore=['/vendor'])
+docker_build('` + dockerImageName + `', '..', dockerfile='../` + dockerfilePath + `',ignore=['/vendor', '/node_modules'])
 `)
 	if !configuration.Api {
 		f.WriteString(`docker_build('` + dockerImageName + `-nginx', '../public', dockerfile='nginx.Dockerfile')`)
